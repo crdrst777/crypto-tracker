@@ -1,8 +1,12 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Container = styled.div`
   padding: 0px 20px;
+  max-width: 480px;
+  margin: 0 auto;
 `;
 
 const Header = styled.header`
@@ -15,6 +19,11 @@ const Header = styled.header`
 const Title = styled.h1`
   font-size: 48px;
   color: ${(props) => props.theme.accentColor};
+`;
+
+const Loader = styled.span`
+  text-align: center;
+  display: block;
 `;
 
 const CoinsList = styled.ul``;
@@ -36,50 +45,73 @@ const Coin = styled.li`
   }
 `;
 
+interface CoinInterface {
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  is_new: boolean;
+  is_active: boolean;
+  type: string;
+}
+
 const Coins = () => {
-  const coins = [
-    {
-      id: "btc-bitcoin",
-      name: "Bitcoin",
-      symbol: "BTC",
-      rank: 1,
-      is_new: false,
-      is_active: true,
-      type: "coin",
-    },
-    {
-      id: "eth-ethereum",
-      name: "Ethereum",
-      symbol: "ETH",
-      rank: 2,
-      is_new: false,
-      is_active: true,
-      type: "coin",
-    },
-    {
-      id: "hex-hex",
-      name: "HEX",
-      symbol: "HEX",
-      rank: 3,
-      is_new: false,
-      is_active: true,
-      type: "token",
-    },
-  ];
+  const [coins, setCoins] = useState<CoinInterface[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // axios와 try, catch를 사용한 방식
+  const getCoins = async () => {
+    try {
+      const response = await axios.get("https://api.coinpaprika.com/v1/coins");
+      setCoins(response.data.slice(0, 100)); // 앞에서부터 100개만 보여주기
+      setLoading(false);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
+
+  // axios를 사용한 방식
+  // const getCoins = async () => {
+  //   const res = await axios("https://api.coinpaprika.com/v1/coins");
+  //   // console.log(res.data);
+  //   setCoins(res.data.slice(0, 100)); // 앞에서부터 100개만 보여주기
+  //   setLoading(false);
+  // };
+
+  // 강의에 나온 방식 (조금 다름)
+  // const getCoins = async () => {
+  //   const json = await (
+  //     await fetch("https://api.coinpaprika.com/v1/coins")
+  //   ).json();
+  //   // console.log(json);
+  //   setCoins(json.slice(0, 100)); // 앞에서부터 100개만 보여주기
+  //   setLoading(false);
+  // };
+
+  console.log(coins);
+
+  useEffect(() => {
+    getCoins();
+  }, []);
 
   return (
     <Container>
       <Header>
         <Title>코인</Title>
       </Header>
-      <CoinsList>
-        {coins.map((coin) => (
-          <Coin key={coin.id}>
-            <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
-            {/* {/:coinId} */}
-          </Coin>
-        ))}
-      </CoinsList>
+
+      {loading ? (
+        <Loader>Loading...</Loader>
+      ) : (
+        <CoinsList>
+          {coins.map((coin) => (
+            <Coin key={coin.id}>
+              <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
+              {/* {/:coinId} */}
+            </Coin>
+          ))}
+        </CoinsList>
+      )}
     </Container>
   );
 };
