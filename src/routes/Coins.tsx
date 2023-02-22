@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import styled from "styled-components";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import styled from "styled-components";
+// import axios from "axios";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -17,13 +17,20 @@ const Header = styled.header`
 `;
 
 const Title = styled.h1`
-  font-size: 48px;
+  /* font-size: 48px; */
+  font-size: 18px;
   color: ${(props) => props.theme.accentColor};
 `;
 
 const Loader = styled.span`
   text-align: center;
   display: block;
+`;
+
+const Img = styled.img`
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
 `;
 
 const CoinsList = styled.ul``;
@@ -34,9 +41,11 @@ const Coin = styled.li`
   border-radius: 15px;
   margin-bottom: 10px;
   a {
+    display: flex;
+    align-items: center;
     padding: 20px; // padding을 위에서가 아닌 여기서 주니깐 카드 면적이 전부 클릭 가능한 영역이 됨
     transition: color 0.2s ease-in;
-    display: block; // 이러면 카드의 끝부분까지도 클릭 가능
+    /* display: block; // 이러면 카드의 끝부분까지도 클릭 가능 */
   }
   &:hover {
     a {
@@ -60,15 +69,15 @@ const Coins = () => {
   const [loading, setLoading] = useState(true);
 
   // axios와 try, catch를 사용한 방식
-  const getCoins = async () => {
-    try {
-      const response = await axios.get("https://api.coinpaprika.com/v1/coins");
-      setCoins(response.data.slice(0, 100)); // 앞에서부터 100개만 보여주기
-      setLoading(false);
-    } catch (error) {
-      console.log("error", error);
-    }
-  };
+  // const getCoins = async () => {
+  //   try {
+  //     const response = await axios.get("https://api.coinpaprika.com/v1/coins");
+  //     setCoins(response.data.slice(0, 100)); // 앞에서부터 100개만 보여주기
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.log("error", error);
+  //   }
+  // };
 
   // axios를 사용한 방식
   // const getCoins = async () => {
@@ -79,14 +88,14 @@ const Coins = () => {
   // };
 
   // 강의에 나온 방식 (조금 다름)
-  // const getCoins = async () => {
-  //   const json = await (
-  //     await fetch("https://api.coinpaprika.com/v1/coins")
-  //   ).json();
-  //   // console.log(json);
-  //   setCoins(json.slice(0, 100)); // 앞에서부터 100개만 보여주기
-  //   setLoading(false);
-  // };
+  const getCoins = async () => {
+    const json = await (
+      await fetch("https://api.coinpaprika.com/v1/coins")
+    ).json();
+    // console.log(json);
+    setCoins(json.slice(0, 100)); // 앞에서부터 100개만 보여주기
+    setLoading(false);
+  };
 
   console.log(coins);
 
@@ -106,7 +115,14 @@ const Coins = () => {
         <CoinsList>
           {coins.map((coin) => (
             <Coin key={coin.id}>
-              <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
+              {/* <Link to={`/${coin.id}`}> */}
+              <Link to={`/${coin.id}`} state={{ name: coin.name }}>
+                <Img
+                  // src={`https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
+                  src={`https://cryptocurrencyliveprices.com/img/${coin.id}.png`}
+                />
+                {coin.name} &rarr;
+              </Link>
               {/* {/:coinId} */}
             </Coin>
           ))}
