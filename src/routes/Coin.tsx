@@ -165,9 +165,8 @@ const Coin = () => {
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
 
-  // const chartMatch: PathMatch< "coinId" > | null = useMatch("/:coinId/chart");
   // console.log(priceMatch);
-  console.log(chartMatch);
+  // console.log(chartMatch);
 
   // 일단 어떻게 데이터를 가져오는지 알아보고, 다음번에 React-query로 바꿔줄거임.
   useEffect(() => {
