@@ -54,7 +54,7 @@ const Coin = styled.li`
   }
 `;
 
-interface CoinInterface {
+interface ICoinInterface {
   id: string;
   name: string;
   symbol: string;
@@ -65,7 +65,7 @@ interface CoinInterface {
 }
 
 const Coins = () => {
-  const [coins, setCoins] = useState<CoinInterface[]>([]);
+  const [coins, setCoins] = useState<ICoinInterface[]>([]);
   const [loading, setLoading] = useState(true);
 
   // axios와 try, catch를 사용한 방식
@@ -88,6 +88,7 @@ const Coins = () => {
   // };
 
   // 강의에 나온 방식 (조금 다름)
+  // 일단 어떻게 데이터를 가져오는지 알아보고, 다음번에 React-query로 바꿔줄거임.
   const getCoins = async () => {
     const json = await (
       await fetch("https://api.coinpaprika.com/v1/coins")
@@ -97,7 +98,7 @@ const Coins = () => {
     setLoading(false);
   };
 
-  console.log(coins);
+  // console.log(coins);
 
   useEffect(() => {
     getCoins();
@@ -115,7 +116,6 @@ const Coins = () => {
         <CoinsList>
           {coins.map((coin) => (
             <Coin key={coin.id}>
-              {/* <Link to={`/${coin.id}`}> */}
               <Link to={`/${coin.id}`} state={{ name: coin.name }}>
                 <Img
                   // src={`https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
@@ -123,7 +123,6 @@ const Coins = () => {
                 />
                 {coin.name} &rarr;
               </Link>
-              {/* {/:coinId} */}
             </Coin>
           ))}
         </CoinsList>
