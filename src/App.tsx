@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 // import { reset } from "styled-reset";
 import Router from "./Router";
+import { ReactQueryDevtools } from "react-query/devtools";
 
 // const GlobalStyle = createGlobalStyle`
 // ${reset}
@@ -92,6 +93,8 @@ function App() {
     <>
       <GlobalStyle />
       <Router />
+      <ReactQueryDevtools initialIsOpen={true} />
+      {/* 캐시에 있는게 무엇인지 그리고 우리가 무엇을 query했는지 안했는지를 개발자 도구?로 볼수있음 */}
     </>
   );
 }

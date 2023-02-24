@@ -10,8 +10,23 @@
 //   return json;
 // }
 // 위 방식은 코드가 길고 await async를 사용하는 대신 promise를 사용해보자.
+
+const BASE_URL = `https://api.coinpaprika.com/v1`;
+// all coins
 export function fetchCoins() {
-  return fetch("https://api.coinpaprika.com/v1/coins").then(
+  return fetch(`${BASE_URL}/coins`).then(
     (response) => response.json() // 어찌됐든 json data를 리턴하는건 같음.
+  );
+}
+// coin info
+export function fetchCoinInfo(coinId: string | undefined) {
+  return fetch(`${BASE_URL}/coins/${coinId}`).then((response) =>
+    response.json()
+  );
+}
+// coin price
+export function fetchCoinTickers(coinId: string | undefined) {
+  return fetch(`${BASE_URL}/tickers/${coinId}`).then((response) =>
+    response.json()
   );
 }

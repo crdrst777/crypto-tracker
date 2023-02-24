@@ -4,7 +4,8 @@
 // Coins.tsx에서 <Link to={`/${coin.id}`} state={{ name: coin.name }}> 로 name을 넘겨주고,
 // Coin.tsx 여기서 const { state } = useLocation() as RouteState; 으로 받아왔기 때문임.
 
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 import {
   useLocation,
   useParams,
@@ -13,6 +14,7 @@ import {
   useMatch,
 } from "react-router-dom";
 import styled from "styled-components";
+import { fetchCoinInfo } from "../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -84,6 +86,7 @@ const Tab = styled.span<{ isActive: boolean }>`
 `;
 
 // 헷갈릴 수 있으니깐 interface는 변수? 앞에 I를 붙이기도 함.
+
 interface IRouteState {
   state: {
     name: string;
@@ -153,9 +156,6 @@ interface IPriceData {
 // url - 코인에 대한 정보 / 코인의 가격 정보
 
 const Coin = () => {
-  const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState<IInfoData>();
-  const [priceInfo, setPriceInfo] = useState<IPriceData>();
   const { coinId } = useParams();
   // url의 파라미터 부분을 잡아내고 싶을때 useParams훅을 쓴다.
   // const params = useParams(); 이렇게 쓰면 {coinId: 'ㅌㅌㅌ'} 로 나옴. 여기서 coinId를 꺼내온거임.
@@ -165,26 +165,42 @@ const Coin = () => {
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
 
-  // console.log(priceMatch);
-  // console.log(chartMatch);
+  // 이 경우는 argument를 알아야하기때문에 함수를 이런 방식으로 씀.
+  // ()=>fetchCoinInfo(coinId) : 함수 정의 // fetchCoinInfo(coinId) : 함수 호출
+  // fetchCoinInfo(coinId) 이렇게 작성하면 작성 시점에서 바로 해당 함수가 실행됨. 매개변수를 받아야 해서 ()를 반드시 작성해야하는 경우는 다른 함수로 한번 wrap해주어야 함.
+  // { isLoading: infoLoading, data: infoData } -> 이렇게 객체에 이름을 부여하는 형식은 구조분해할당임.
+  const { isLoading: infoLoading, data: infoData } = useQuery<IInfoData>(
+    ["info", coinId],
+    () => fetchCoinInfo(coinId)
+  );
+  const { isLoading: tickersLoading, data: tickersData } = useQuery<IPriceData>(
+    ["tickers", coinId],
+    () => fetchCoinInfo(coinId)
+  );
 
-  // 일단 어떻게 데이터를 가져오는지 알아보고, 다음번에 React-query로 바꿔줄거임.
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
-      setInfo(infoData);
-      setPriceInfo(priceData);
-      setLoading(false);
+  // const [loading, setLoading] = useState(true);
+  // const [info, setInfo] = useState<IInfoData>();
+  // const [priceInfo, setPriceInfo] = useState<IPriceData>();
 
-      // console.log(priceInfo?.quotes.USD.price);
-      // priceInfo가 undefined일수도 있는 경우. ? 붙이면 에러를 뱉지 않는다.
-    })();
-  }, [coinId]); // coinId를 여기 넣어도 어차피 이 Coin컴포넌트의 일생동안은 변할 일이 없어서 넣든안넣든 상관 없음.
+  // useEffect(() => {
+  //   (async () => {
+  //     const infoData = await (
+  //       await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
+  //     ).json();
+  //     const priceData = await (
+  //       await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
+  //     ).json();
+  //     setInfo(infoData);
+  //     setPriceInfo(priceData);
+  //     setLoading(false);
+
+  //     // console.log(priceInfo?.quotes.USD.price);
+  //     // priceInfo가 undefined일수도 있는 경우. ? 붙이면 에러를 뱉지 않는다.
+  //   })();
+  // }, [coinId]);
+  // coinId를 여기 넣어도 어차피 이 Coin컴포넌트의 일생동안은 변할 일이 없어서 넣든안넣든 상관 없음.
+
+  const loading = infoLoading || tickersLoading;
 
   return (
     <Container>
@@ -192,7 +208,7 @@ const Coin = () => {
         {/* <Title>{state?.name || "Loading.."}</Title> */}
         {/* state가 존재하면 name을 가져오고, 존재하지 않으면 "Loading.."을 보여줘라.. */}
         <Title>
-          {state?.name ? state.name : loading ? "Loading.." : info?.name}
+          {state?.name ? state.name : loading ? "Loading.." : infoData?.name}
         </Title>
         {/* name이 state에 있다면 보여주고(홈에서 코인을 클릭한 경우), 혹은 로딩중이면 로딩을 보여주고,
 로딩중이 아니라면 api로부터 받아온 info의 name을 보여줄거야.(홈으로부터 온게 아닌 경우)  */}
@@ -205,26 +221,26 @@ const Coin = () => {
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${info?.symbol}</span>
+              <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Open Source:</span>
-              <span>{info?.open_source ? "Yes" : "No"}</span>
+              <span>{infoData?.open_source ? "Yes" : "No"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Suply:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{tickersData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{tickersData?.max_supply}</span>
             </OverviewItem>
           </Overview>
 

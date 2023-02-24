@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -68,11 +68,12 @@ interface ICoin {
 
 const Coins = () => {
   // useQuery는 2가지 argument가 필요함. (queryKey: query의 고유식별자 / fetcher함수)
+  // react query는 이 key를 보고 우리의 query를 인식한다. 또한 이 key를 array로 감싸서 인식한다.
   // useQuery는 isLoading이라고 불리는 boolean값을 반환한다. 로딩중인지(true), fetcher함수가 끝난상태(false)인지.
   // useQuery는 fetcher함수가 끝나면 그 data(json)도 반환한다.
   // react query는 데이터를 캐시에 저장해두기 때문에 코인목록에서 코인을 눌러 다른 url로 갔다가 다시 목록으로 돌아오면 로딩중이 뜨지 않고 화면이 바로 뜬다.
   const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
-
+  console.log(isLoading, data);
   // const [coins, setCoins] = useState<ICoin>([]);
   // const [loading, setLoading] = useState(true);
 
