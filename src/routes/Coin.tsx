@@ -15,6 +15,7 @@ import {
 } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoinInfo } from "../api";
+import { fetchCoinTickers } from "../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -156,10 +157,11 @@ interface IPriceData {
 // url - 코인에 대한 정보 / 코인의 가격 정보
 
 const Coin = () => {
-  const { coinId } = useParams();
+  const { coinId } = useParams() as { coinId: string };
   // url의 파라미터 부분을 잡아내고 싶을때 useParams훅을 쓴다.
   // const params = useParams(); 이렇게 쓰면 {coinId: 'ㅌㅌㅌ'} 로 나옴. 여기서 coinId를 꺼내온거임.
-  // useParams 쓰는 순간 타입이 자동으로 string or undefined로 지정됨.
+  // useParams 쓰는 순간 타입이 자동으로 string or undefined로 지정되서 아래에서 오류가 났음.
+  // 그래서 type assersion으로 해결. (useParams는 제네릭 타입지정이 안됨)
   const { state } = useLocation() as IRouteState;
   // 원래 location.state.name 이런 복잡한 구조로 되있는데 RouteState 타입을 지정해줬기때문에, 위의 {state}처럼 간단히 정의할수가 있음.
   const priceMatch = useMatch("/:coinId/price");
@@ -167,7 +169,8 @@ const Coin = () => {
 
   // 이 경우는 argument를 알아야하기때문에 함수를 이런 방식으로 씀.
   // ()=>fetchCoinInfo(coinId) : 함수 정의 // fetchCoinInfo(coinId) : 함수 호출
-  // fetchCoinInfo(coinId) 이렇게 작성하면 작성 시점에서 바로 해당 함수가 실행됨. 매개변수를 받아야 해서 ()를 반드시 작성해야하는 경우는 다른 함수로 한번 wrap해주어야 함.
+  // fetchCoinInfo(coinId) 이렇게 작성하면 작성 시점에서 바로 해당 함수가 실행됨. (리턴된 promise가 바로 들어가버림)
+  // 매개변수를 받아야 해서 ()를 반드시 작성해야하는 경우는, 이 함수를 실행하는 함수를 새로 만들어 인자로 넘겨야 함수 자체를 넘길 수 있음.
   // { isLoading: infoLoading, data: infoData } -> 이렇게 객체에 이름을 부여하는 형식은 구조분해할당임.
   const { isLoading: infoLoading, data: infoData } = useQuery<IInfoData>(
     ["info", coinId],
@@ -175,7 +178,7 @@ const Coin = () => {
   );
   const { isLoading: tickersLoading, data: tickersData } = useQuery<IPriceData>(
     ["tickers", coinId],
-    () => fetchCoinInfo(coinId)
+    () => fetchCoinTickers(coinId)
   );
 
   // const [loading, setLoading] = useState(true);
@@ -201,6 +204,7 @@ const Coin = () => {
   // coinId를 여기 넣어도 어차피 이 Coin컴포넌트의 일생동안은 변할 일이 없어서 넣든안넣든 상관 없음.
 
   const loading = infoLoading || tickersLoading;
+  // infoLoading 이거나 tickersLoading이면 true가 되게 함.
 
   return (
     <Container>
@@ -254,7 +258,7 @@ const Coin = () => {
             </Tab>
           </Tabs>
 
-          <Outlet />
+          <Outlet context={{ coinId }} />
         </>
       )}
     </Container>

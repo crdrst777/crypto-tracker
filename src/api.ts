@@ -12,6 +12,7 @@
 // 위 방식은 코드가 길고 await async를 사용하는 대신 promise를 사용해보자.
 
 const BASE_URL = `https://api.coinpaprika.com/v1`;
+
 // all coins
 export function fetchCoins() {
   return fetch(`${BASE_URL}/coins`).then(
@@ -19,14 +20,26 @@ export function fetchCoins() {
   );
 }
 // coin info
-export function fetchCoinInfo(coinId: string | undefined) {
+export function fetchCoinInfo(coinId: string) {
   return fetch(`${BASE_URL}/coins/${coinId}`).then((response) =>
     response.json()
   );
 }
 // coin price
-export function fetchCoinTickers(coinId: string | undefined) {
+export function fetchCoinTickers(coinId: string) {
   return fetch(`${BASE_URL}/tickers/${coinId}`).then((response) =>
     response.json()
   );
+}
+// Date.now()는 밀리세컨즈를 주기때문에, 1000으로 나눠야 함 (1000 ms = 1 s)
+// Math.floor: 내림처리 (1.9 -> 1)
+// Math.ceil: 올림처리 (1.9 -> 2)
+
+export function fetchCoinHistory(coinId: string) {
+  // const endDate = Math.floor(Date.now() / 1000); // 현재
+  // const startDate = endDate - 60 * 60 * 24 * 7; // 일주일 전
+  return fetch(
+    // `${BASE_URL}/coins/${coinId}/ohlcv/historical?start=${startDate}&end=${endDate}` // 원래 이건데 유료화되서 사용불가
+    `https://ohlcv-api.nomadcoders.workers.dev/?coinId=${coinId}`
+  ).then((response) => response.json());
 }
