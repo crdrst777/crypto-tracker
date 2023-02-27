@@ -32,8 +32,7 @@ const Header = styled.header`
 `;
 
 const Title = styled.h1`
-  /* font-size: 48px; */
-  font-size: 18px;
+  font-size: 38px;
   color: ${(props) => props.theme.accentColor};
 `;
 
@@ -242,7 +241,7 @@ const Coin = () => {
             </OverviewItem>
             <OverviewItem>
               <span>Price:</span>
-              <span>{tickersData?.quotes.USD.price}</span>
+              <span>${tickersData?.quotes.USD.price.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
           <Description>{infoData?.description}</Description>

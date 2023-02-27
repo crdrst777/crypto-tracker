@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoins } from "../api";
 import { Helmet } from "react-helmet";
+import { useSetRecoilState } from "recoil";
+import { isDarkAtom } from "../\batoms";
 // import axios from "axios";
 
 const Container = styled.div`
@@ -20,8 +22,7 @@ const Header = styled.header`
 `;
 
 const Title = styled.h1`
-  /* font-size: 48px; */
-  font-size: 18px;
+  font-size: 38px;
   color: ${(props) => props.theme.accentColor};
 `;
 
@@ -68,6 +69,8 @@ interface ICoin {
 }
 
 const Coins = () => {
+  const setDarkAtom = useSetRecoilState(isDarkAtom); // setter function -> value를 설정(set)하는 function (setState와 비슷)
+  const toggleDarkAtom = () => setDarkAtom((prev) => !prev);
   // useQuery는 2가지 argument가 필요함. (queryKey: query의 고유식별자 / fetcher함수)
   // 세번째 argument는 옵션. (선택적인 object)
   // react query는 이 key를 보고 우리의 query를 인식한다. 또한 이 key를 array로 감싸서 인식한다.
@@ -119,10 +122,11 @@ const Coins = () => {
     <Container>
       {/* 여기서 무엇을 render하던 그게 문서의 head로 감. <title/>은 싸이트 탭창에 뜨는 이름?을 설정하는것임 */}
       <Helmet>
-        <title>코인</title>
+        <title>Coin</title>
       </Helmet>
       <Header>
-        <Title>코인</Title>
+        <Title>Coin</Title>
+        <button onClick={toggleDarkAtom}>Toggle Mode</button>
       </Header>
 
       {isLoading ? (
