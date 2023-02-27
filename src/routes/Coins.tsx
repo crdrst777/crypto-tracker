@@ -3,6 +3,7 @@ import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { fetchCoins } from "../api";
+import { Helmet } from "react-helmet";
 // import axios from "axios";
 
 const Container = styled.div`
@@ -68,6 +69,7 @@ interface ICoin {
 
 const Coins = () => {
   // useQuery는 2가지 argument가 필요함. (queryKey: query의 고유식별자 / fetcher함수)
+  // 세번째 argument는 옵션. (선택적인 object)
   // react query는 이 key를 보고 우리의 query를 인식한다. 또한 이 key를 array로 감싸서 인식한다.
   // useQuery는 isLoading이라고 불리는 boolean값을 반환한다. 로딩중인지(true), fetcher함수가 끝난상태(false)인지.
   // useQuery는 fetcher함수가 끝나면 그 data(json)도 반환한다.
@@ -115,6 +117,10 @@ const Coins = () => {
 
   return (
     <Container>
+      {/* 여기서 무엇을 render하던 그게 문서의 head로 감. <title/>은 싸이트 탭창에 뜨는 이름?을 설정하는것임 */}
+      <Helmet>
+        <title>코인</title>
+      </Helmet>
       <Header>
         <Title>코인</Title>
       </Header>

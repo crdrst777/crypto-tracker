@@ -16,6 +16,7 @@ import {
 import styled from "styled-components";
 import { fetchCoinInfo } from "../api";
 import { fetchCoinTickers } from "../api";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -178,7 +179,10 @@ const Coin = () => {
   );
   const { isLoading: tickersLoading, data: tickersData } = useQuery<IPriceData>(
     ["tickers", coinId],
-    () => fetchCoinTickers(coinId)
+    () => fetchCoinTickers(coinId),
+    {
+      refetchInterval: 5000, // 5초마다 refetch
+    }
   );
 
   // const [loading, setLoading] = useState(true);
@@ -208,6 +212,11 @@ const Coin = () => {
 
   return (
     <Container>
+      <Helmet>
+        <title>
+          {state?.name ? state.name : loading ? "Loading.." : infoData?.name}
+        </title>
+      </Helmet>
       <Header>
         {/* <Title>{state?.name || "Loading.."}</Title> */}
         {/* state가 존재하면 name을 가져오고, 존재하지 않으면 "Loading.."을 보여줘라.. */}
@@ -232,8 +241,8 @@ const Coin = () => {
               <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Open Source:</span>
-              <span>{infoData?.open_source ? "Yes" : "No"}</span>
+              <span>Price:</span>
+              <span>{tickersData?.quotes.USD.price}</span>
             </OverviewItem>
           </Overview>
           <Description>{infoData?.description}</Description>
